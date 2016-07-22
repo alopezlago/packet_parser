@@ -7,6 +7,7 @@ import json
 ansregex = '(?i)a..?wers?:'
 bpart_regex = '^[\s]*\[\d+\]'
 bonus_value_regex = '\[|\]|\(|\)'
+num_regex = '^([\s]*<strong>[\d]+\.[\s]*<\/strong>[\s]*|[\s]*[\d]+\.[\s]*)'
 
 def is_answer(line):
 
@@ -16,13 +17,17 @@ def is_bpart(line):
     
     return re.search(bpart_regex, line) is not None
 
+def starts_with_number(line):
+
+    return re.match(num_regex, line) is not None
+
 def get_bonus_part_value(line):
     
     match = re.search(bpart_regex, line)
     return re.sub(bonus_value_regex, '', match.group(0))
 
 def sanitize (html, valid_tags=[]):
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, 'html.parser')
     # get rid of comments
     for comment in soup.findAll(
         text=lambda text: isinstance(text, Comment)):

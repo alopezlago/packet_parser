@@ -8,7 +8,7 @@ import shlex
 import subprocess
 import codecs
 
-from utils import ansregex, bpart_regex, is_answer, is_bpart, get_bonus_part_value, sanitize, conf_gen
+from utils import ansregex, bpart_regex, is_answer, is_bpart, get_bonus_part_value, sanitize, conf_gen, starts_with_number
 
 class InvalidPacket(Exception):
 
@@ -132,6 +132,16 @@ class Packet:
             
         packet_contents = map(lambda x: sanitize(x, valid_tags=['em', 'strong']),
                               packet_contents.split('\n'))
+
+        # Skip all of the packet information at the beginning
+        first_line_with_number_index = 0
+        for line in packet_contents:
+            if starts_with_number(line):
+                break
+            first_line_with_number_index += 1
+        
+        packet_contents = packet_contents[first_line_with_number_index:]
+
         packet_contents = [x.strip() for x in packet_contents if sanitize(x).strip() != ''
                            and len(x) > 20
                            and (not re.search('Tossups', x, flags=re.I))
